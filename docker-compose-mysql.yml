@@ -1,0 +1,36 @@
+services:
+  webapp:
+    image: webapp
+    container_name: webapp
+    restart: always 
+    build: 
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - ./database:/app/database
+    ports:
+      - 3000:3000   
+    environment:
+      MYSQL_URL: mysql://root:example@database/database
+    depends_on:
+      - database
+
+  database:
+    image: mysql
+    container_name: database 
+    volumes:
+      - database-date:/var/lib/mysql
+    environment:
+      MYSQL_DATABASE: database
+      MYSQL_ROOT_PASSWORD: example
+
+  test:
+    image: webapp
+    environment:
+      API_URL: http://webapp:3000
+    command: [ "yarn", "test" ]
+    depends_on:
+      - webapp
+
+volumes:
+  database-date:
